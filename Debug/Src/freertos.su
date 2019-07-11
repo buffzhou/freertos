@@ -1,0 +1,4 @@
+freertos.c:72:6:MX_FREERTOS_Init	144	static
+freertos.c:139:6:keyfunction	16	static
+freertos.c:170:6:led1function	24	static
+freertos.c:201:6:led2function	16	static
