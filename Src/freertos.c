@@ -103,7 +103,7 @@ osKernelInitialize(); // Initialize CMSIS-RTOS
   const osThreadAttr_t key_attributes = {
     .name = "key",
     .priority = (osPriority_t) osPriorityNormal,
-    .stack_size = 128
+    .stack_size = 512
   };
   keyHandle = osThreadNew(keyfunction, NULL, &key_attributes);
 
@@ -111,7 +111,7 @@ osKernelInitialize(); // Initialize CMSIS-RTOS
   const osThreadAttr_t led1_attributes = {
     .name = "led1",
     .priority = (osPriority_t) osPriorityLow,
-    .stack_size = 128
+    .stack_size = 512
   };
   led1Handle = osThreadNew(led1function, NULL, &led1_attributes);
 
@@ -119,7 +119,7 @@ osKernelInitialize(); // Initialize CMSIS-RTOS
   const osThreadAttr_t led2_attributes = {
     .name = "led2",
     .priority = (osPriority_t) osPriorityLow,
-    .stack_size = 128
+    .stack_size = 512
   };
   led2Handle = osThreadNew(led2function, NULL, &led2_attributes);
 
@@ -140,24 +140,17 @@ void keyfunction(void *argument)
 {
 
   /* USER CODE BEGIN keyfunction */
+	uint16_t p;
   /* Infinite loop */
 for(;;)
-{
-  if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0))
-  {
-	  osDelay(20);
-	  if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0))
-	  {
-		  osMessageQueuePut(messageHandle,(uint16_t *)0,0,NULL);
-	  }
-  }
-  else
-  {
-
-  		 osMessageQueuePut(messageHandle,(uint16_t *)1,0,NULL);
-  	  }
-  osDelay(100);
+{p = 1;
+osMessageQueuePut(messageHandle,(void *)&p,0,0);
+osDelay(500);
+p= 2;
+osMessageQueuePut(messageHandle,(void *)&p,0,0);
+osDelay(500);
 }
+
   /* USER CODE END keyfunction */
 }
 
@@ -172,14 +165,16 @@ void led1function(void *argument)
 {
   /* USER CODE BEGIN led1function */
   /* Infinite loop */
-	for(;;)
-	{
 	uint16_t p;
 	osStatus_t sta;
-	sta = osMessageQueueGet (messageHandle, &p, NULL, NULL);
+	for(;;)
+	{
+  	sta = osMessageQueueGet (messageHandle, (void *)&p, 0, 100);
 	if(sta == osOK)
-	if(p){
-		HAL_GPIO_WritePi7n(GPIOF,GPIO_PIN_9,GPIO_PIN_SET);
+	{
+
+	if(p == 1){
+		HAL_GPIO_WritePin(GPIOF,GPIO_PIN_9,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOF,GPIO_PIN_10,GPIO_PIN_RESET);
 		}
 	else
@@ -187,6 +182,7 @@ void led1function(void *argument)
 	HAL_GPIO_WritePin(GPIOF,GPIO_PIN_9,GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOF,GPIO_PIN_10,GPIO_PIN_SET);
 	  }
+	}
 	osDelay(1);
 	}
   /* USER CODE END led1function */
@@ -203,7 +199,10 @@ void led2function(void *argument)
 {
   /* USER CODE BEGIN led2function */
   /* Infinite loop */
-
+	for(;;)
+	{
+	osDelay(1);
+	}
   /* USER CODE END led2function */
 }
 
